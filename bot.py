@@ -44,9 +44,11 @@ async def on_ready():
 
 @client.event
 async def on_message(message: discord.Message):
+
     if not message.guild or message.author.bot:
         return
 
+    # 이모지를 업로드하면 이모지를 업로드한 사람의 이름과 이모지를 확대해서 보여줌
     if (m := SINGLE_EMOJI_REGEX.match(message.content)):
         embed = discord.Embed(
             color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
@@ -64,12 +66,12 @@ async def on_message(message: discord.Message):
         except Exception as e:
             logging.exception(e)
 
-@client.event
-async def on_message(message: discord.Message):
-
+    # 도움말
     if message.content == "!help":
         await message.channel.send("```!help : 도움말\n!mt <아이템 이름> : 경매장 아이템 검색```")
     
+    # start region Mabinogi
+
     # 아이템 가격 검색 (마비노기 : !mt <아이템 이름>)
     if message.content.startswith("!mt"):
 
@@ -85,6 +87,23 @@ async def on_message(message: discord.Message):
         item_price = mabi.getItemPrice(item)
 
         await loading_msg.delete()  
+
+        # Error handling
+        if item_price.get("status_code") != 200:
+
+            embed = discord.Embed(
+                color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
+            )
+
+            embed.set_author(name=message.author.display_name, icon_url=message.author.display_avatar)
+            embed.add_field(name="ERROR!", value=item_price.get("errorCode"), inline=False)
+            embed.add_field(name = chr(173), value = "") # Add a blank field
+        
+            embed.set_footer(text="Data based on NEXON Open API")
+            
+            await message.channel.send(embed=embed, reference=message.reference, mention_author=False)
+
+            return
 
         # Parse and format the expiration date
         expire_date = datetime.fromisoformat(item_price.get("expire").replace("Z", "+00:00"))
@@ -104,6 +123,7 @@ async def on_message(message: discord.Message):
         
         await message.channel.send(embed=embed, reference=message.reference, mention_author=False)
 
+    # end region Mabinogi
 
 
 client.run(os.getenv("DISCORD_TOKEN"))
