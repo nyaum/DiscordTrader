@@ -120,6 +120,63 @@ async def on_message(message: discord.Message):
         
         await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
 
+    # 판매시 수수료 쿠폰 이득 구간 !coupon <아이템 이름>
+    if message.content.startswith("!coupon"):
+        item = message.content.split(" ", 1)[1]
+        if item == "":
+            await message.channel.send("아이템 이름을 입력해주세요.")
+
+        await message.delete()
+
+        file = discord.File('img/mabi_logo_2.png', filename='mabi_logo.png') 
+
+        embed = discord.Embed(
+            color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
+        )
+
+        # embed.set_author(name=message.author.display_name, icon_url=message.author.display_avatar)
+        embed.set_author(name="마비노기 수수료 계산기", icon_url="attachment://mabi_logo.png")
+
+        loading_msg = await message.channel.send(f"{item}을(를) 검색하는중...")
+
+        item_price = mabi.getItemPrice(item)
+
+        # Error handling
+        if item_price.get("status_code") != 200:
+
+            embed.add_field(name="ERROR!", value=item_price.get("errorCode"), inline=False)
+            embed.add_field(name = chr(173), value = "") # Add a blank field
+        
+            embed.set_footer(text="Data based on NEXON Open API")
+            
+            await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
+
+            return
+        
+        discount_per = mabi.getItemCharge(item_price.get("price"))
+        # 제일 이득인 쿠폰
+        coupon_result = max(list(discount_per.items()), key=lambda v: v[1])
+
+        embed.add_field(name="아이템", value=item, inline=False)
+        embed.add_field(name="가격", value=item_price.get("price") + " 골드", inline=False)
+
+        embed.add_field(name = "", value = chr(173), inline=False)
+
+        embed.add_field(name = "쿠폰 사용시 이득", value = "", inline=False)
+        embed.add_field(name="10% 할인 쿠폰", value=discount_per.get("no_coupon") + " 골드", inline=True)
+        embed.add_field(name="10% 할인 쿠폰", value=discount_per.get("10") + " 골드", inline=True)
+        embed.add_field(name="20% 할인 쿠폰", value=discount_per.get("20") + " 골드", inline=True)
+        embed.add_field(name="30% 할인 쿠폰", value=discount_per.get("30") + " 골드", inline=True)
+        embed.add_field(name="50% 할인 쿠폰", value=discount_per.get("50") + " 골드", inline=True)
+        embed.add_field(name="100% 할인 쿠폰", value=discount_per.get("100") + " 골드", inline=True)
+        embed.add_field(name = chr(173), value = "")
+        
+        embed.set_footer(text="Data based on NEXON Open API")
+        
+        await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
+    
+
+
     # 이터리 전적 검색
     if message.content.startswith("!er"):
         print("rank")

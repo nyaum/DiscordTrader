@@ -1,6 +1,7 @@
 import os
 import requests
 from urllib import parse
+import math
 
 def getItemPrice(itemName):
     
@@ -44,6 +45,70 @@ def getItemPrice(itemName):
     }
 
     return result
+
+# 마비노기 아이템 수수료 계산기
+def getItemCharge(price):
+
+    # 프플팩 기준으로 출력
+    price = math.ceil(float(price) * 0.04)
+
+    # 할인권 5개 가격 출력
+
+    url = "https://open.api.nexon.com/mabinogi/v1/auction/keyword-search"
+
+    headers = {
+        "x-nxopen-api-key": os.getenv("NEXON_TOKEN"),
+        "Content-Type": "application/json"
+    }
+
+    params = parse.urlencode({
+        "keyword": "경매장 수수료"
+    })
+
+    response = requests.get(url, headers=headers, params=params)
+
+    # 가격은 auction_price_per_unit 으로 봐야함
+    #print(response.json().get("auction_item", []))
+
+    data = response.json().get("auction_item", [])
+
+    min_price_10 = min(
+        item["auction_price_per_unit"] for item in data if item["item_name"] == "경매장 수수료 10% 할인 쿠폰"
+    )
+
+    min_price_20 = min(
+        item["auction_price_per_unit"] for item in data if item["item_name"] == "경매장 수수료 20% 할인 쿠폰"
+    )
+
+    min_price_30 = min(
+        item["auction_price_per_unit"] for item in data if item["item_name"] == "경매장 수수료 30% 할인 쿠폰"
+    )
+
+    min_price_50 = min(
+        item["auction_price_per_unit"] for item in data if item["item_name"] == "경매장 수수료 50% 할인 쿠폰"
+    )
+
+    min_price_100 = min(
+        item["auction_price_per_unit"] for item in data if item["item_name"] == "경매장 수수료 100% 할인 쿠폰"
+    )
+
+    discount_per = {
+        "no_coupon" : f"{price:,}",
+        "10" : f"{int((float(price)*0.1) - min_price_10):,}",
+        "20" : f"{int((float(price)*0.2) - min_price_20):,}",
+        "30" : f"{int((float(price)*0.3) - min_price_30):,}",
+        "50" : f"{int((float(price)*0.5) - min_price_50):,}",
+        "100" : f"{price - min_price_100:,}"
+    }
+
+    # 제일 이득인 쿠폰
+    # coupon_result = max(list(discount_per.items()), key=lambda v: v[1])
+    
+    # return coupon_result
+
+    return discount_per
+    
+
 
 # Error handling
 def errorHandling(statusCode, errorCode):
