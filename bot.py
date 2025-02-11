@@ -88,31 +88,30 @@ async def on_message(message: discord.Message):
 
         await loading_msg.delete()  
 
+        embed = discord.Embed(
+            color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
+        )
+    
+        file = discord.File('img/mabi_logo.png', filename='mabi_logo.png') 
+
+        # embed.set_author(name=message.author.display_name, icon_url=message.author.display_avatar)
+        embed.set_author(name="마비노기 경매장 검색", icon_url="attachment://mabi_logo.png")
+
         # Error handling
         if item_price.get("status_code") != 200:
 
-            embed = discord.Embed(
-                color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
-            )
-
-            embed.set_author(name=message.author.display_name, icon_url=message.author.display_avatar)
             embed.add_field(name="ERROR!", value=item_price.get("errorCode"), inline=False)
             embed.add_field(name = chr(173), value = "") # Add a blank field
         
             embed.set_footer(text="Data based on NEXON Open API")
             
-            await message.channel.send(embed=embed, reference=message.reference, mention_author=False)
+            await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
 
             return
 
         # Parse and format the expiration date
         expire_date = datetime.fromisoformat(item_price.get("expire").replace("Z", "+00:00"))
         diff = expire_date.strftime("%Y-%m-%d %H:%M:%S")
-
-        embed = discord.Embed(
-            color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
-        )
-        embed.set_author(name=message.author.display_name, icon_url=message.author.display_avatar)
 
         embed.add_field(name="아이템", value=item_price.get("item"), inline=False)
         embed.add_field(name="가격", value=item_price.get("price") + " 골드", inline=False)
@@ -121,9 +120,15 @@ async def on_message(message: discord.Message):
         
         embed.set_footer(text="Data based on NEXON Open API")
         
-        await message.channel.send(embed=embed, reference=message.reference, mention_author=False)
+        await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
 
     # end region Mabinogi
 
+    # start region EternalReturn
+
+    if message.content.startswith("!er"):
+        print("rank")
+
+    # end region EternalReturn
 
 client.run(os.getenv("DISCORD_TOKEN"))
