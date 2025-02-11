@@ -94,7 +94,7 @@ async def on_message(message: discord.Message):
             color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
         )
         embed.set_author(name=message.author.display_name, icon_url=message.author.display_avatar)
-        
+
         embed.add_field(name="아이템", value=item_price.get("item"), inline=False)
         embed.add_field(name="가격", value=item_price.get("price") + " 골드", inline=False)
         embed.add_field(name="만료일", value=diff, inline=False)
@@ -106,4 +106,4 @@ async def on_message(message: discord.Message):
 
 
 
-client.run(os.getenv("DICORD_TOKEN"))
+client.run(os.getenv("DISCORD_TOKEN"))
