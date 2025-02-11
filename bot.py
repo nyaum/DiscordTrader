@@ -7,7 +7,7 @@ import discord
 from discord.ext import tasks
 from dotenv import load_dotenv
 
-import mabi
+from components import mabi, er
 
 load_dotenv()
 
@@ -69,8 +69,6 @@ async def on_message(message: discord.Message):
     # 도움말
     if message.content == "!help":
         await message.channel.send("```!help : 도움말\n!mt <아이템 이름> : 경매장 아이템 검색```")
-    
-    # start region Mabinogi
 
     # 아이템 가격 검색 (마비노기 : !mt <아이템 이름>)
     if message.content.startswith("!mt"):
@@ -122,13 +120,8 @@ async def on_message(message: discord.Message):
         
         await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
 
-    # end region Mabinogi
-
-    # start region EternalReturn
-
+    # 이터리 전적 검색
     if message.content.startswith("!er"):
         print("rank")
-
-    # end region EternalReturn
 
 client.run(os.getenv("DISCORD_TOKEN"))
