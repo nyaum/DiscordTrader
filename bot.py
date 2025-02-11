@@ -92,7 +92,7 @@ async def on_message(message: discord.Message):
             color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
         )
     
-        file = discord.File('img/mabi_logo.png', filename='mabi_logo.png') 
+        file = discord.File('img/mabi_logo_2.png', filename='mabi_logo.png') 
 
         # embed.set_author(name=message.author.display_name, icon_url=message.author.display_avatar)
         embed.set_author(name="마비노기 경매장 검색", icon_url="attachment://mabi_logo.png")
