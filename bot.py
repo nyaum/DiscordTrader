@@ -1,16 +1,21 @@
 import logging
 import os
 import re
+from datetime import datetime
 
 import discord
 from discord.ext import tasks
 from dotenv import load_dotenv
 
+import mabi
+
 load_dotenv()
 
 intents = discord.Intents.default()
 intents.message_content = True
-client = discord.Client(intents=intents)
+client = discord.Client(command_prefix='!',intents=intents)
+
+now = datetime.now()
 
 SINGLE_EMOJI_REGEX = re.compile(
     r"""
@@ -59,4 +64,46 @@ async def on_message(message: discord.Message):
         except Exception as e:
             logging.exception(e)
 
-client.run(os.getenv("TOKEN"))
+@client.event
+async def on_message(message: discord.Message):
+
+    if message.content == "!help":
+        await message.channel.send("```!help : 도움말\n!mt <아이템 이름> : 경매장 아이템 검색```")
+    
+    # 아이템 가격 검색 (마비노기 : !mt <아이템 이름>)
+    if message.content.startswith("!mt"):
+
+        item = message.content.split(" ", 1)[1]
+
+        if item == "":
+            await message.channel.send("아이템 이름을 입력해주세요.")
+
+        await message.delete()
+
+        loading_msg = await message.channel.send(f"{item}을(를) 검색하는중...")
+
+        item_price = mabi.getItemPrice(item)
+
+        await loading_msg.delete()  
+
+        # Parse and format the expiration date
+        expire_date = datetime.fromisoformat(item_price.get("expire").replace("Z", "+00:00"))
+        diff = expire_date.strftime("%Y-%m-%d %H:%M:%S")
+
+        embed = discord.Embed(
+            color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
+        )
+        embed.set_author(name=message.author.display_name, icon_url=message.author.display_avatar)
+        
+        embed.add_field(name="아이템", value=item_price.get("item"), inline=False)
+        embed.add_field(name="가격", value=item_price.get("price") + " 골드", inline=False)
+        embed.add_field(name="만료일", value=diff, inline=False)
+        embed.add_field(name = chr(173), value = "") # Add a blank field
+        
+        embed.set_footer(text="Data based on NEXON Open API")
+        
+        await message.channel.send(embed=embed, reference=message.reference, mention_author=False)
+
+
+
+client.run(os.getenv("DICORD_TOKEN"))
