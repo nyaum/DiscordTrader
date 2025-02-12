@@ -40,6 +40,9 @@ async def change_status():
 @client.event
 async def on_ready():
     change_status.start()
+
+    er.on_ready()
+
     print(f"Logged in as {client.user}")
 
 @client.event
@@ -187,11 +190,34 @@ async def on_message(message: discord.Message):
         
         await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
 
-    # 지정 색상 염색 앰플 가격 검색
+    # 이터리 로테이션
+    if message.content.startswith("!rotation"):
+
+        await message.delete()
+
+        loading_msg = await message.channel.send("로테이션을 검색하는중...")
+
+        await loading_msg.delete()
+
+        data = er.freeCharacters()
+
+        file = discord.File('img/er_logo.jpg', filename='er_logo.jpg') 
+
+        embed = discord.Embed(
+            color = message.author.color if message.author.color != discord.Colour.default() else discord.Colour.greyple()
+        )
+
+        embed.set_author(name="이터널리턴 로테이션", icon_url="attachment://er_logo.jpg")
+
+        for item in data:
+            embed.add_field(name=item, value="", inline=True)
+
+        embed.add_field(name = chr(173), value = "")
+
+        embed.set_footer(text="Data based on Nimble Neuron Open API")
+        
+        await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
 
 
-    # 이터리 전적 검색
-    if message.content.startswith("!er"):
-        print("rank")
 
 client.run(os.getenv("DISCORD_TOKEN"))
