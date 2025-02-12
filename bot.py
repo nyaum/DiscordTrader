@@ -103,7 +103,7 @@ async def on_message(message: discord.Message):
         
             embed.set_footer(text="Data based on NEXON Open API")
             
-            await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
+            await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False, delete_after=5)
 
             return
 
@@ -139,6 +139,8 @@ async def on_message(message: discord.Message):
 
         loading_msg = await message.channel.send(f"{item}을(를) 검색하는중...")
 
+        await loading_msg.delete()
+
         item_price = mabi.getItemPrice(item)
 
         # Error handling
@@ -149,32 +151,43 @@ async def on_message(message: discord.Message):
         
             embed.set_footer(text="Data based on NEXON Open API")
             
-            await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
+            await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False, delete_after=5)
 
             return
         
         discount_per = mabi.getItemCharge(item_price.get("price"))
+
         # 제일 이득인 쿠폰
-        coupon_result = max(list(discount_per.items()), key=lambda v: v[1])
+        #coupon_result = max(list(discount_per.items()), key=lambda v: v[1])
 
         embed.add_field(name="아이템", value=item, inline=False)
         embed.add_field(name="가격", value=item_price.get("price") + " 골드", inline=False)
 
-        embed.add_field(name = "", value = chr(173), inline=False)
+        embed.add_field(name = chr(173), value = "")
 
-        embed.add_field(name = "쿠폰 사용시 이득", value = "", inline=False)
-        embed.add_field(name="10% 할인 쿠폰", value=discount_per.get("no_coupon") + " 골드", inline=True)
-        embed.add_field(name="10% 할인 쿠폰", value=discount_per.get("10") + " 골드", inline=True)
-        embed.add_field(name="20% 할인 쿠폰", value=discount_per.get("20") + " 골드", inline=True)
-        embed.add_field(name="30% 할인 쿠폰", value=discount_per.get("30") + " 골드", inline=True)
-        embed.add_field(name="50% 할인 쿠폰", value=discount_per.get("50") + " 골드", inline=True)
-        embed.add_field(name="100% 할인 쿠폰", value=discount_per.get("100") + " 골드", inline=True)
+        embed.add_field(name = "프리미엄 플러스 팩 사용", value = "", inline=False)
+        embed.add_field(name="쿠폰 미사용", value=discount_per.get("premium").get("no_coupon") + " 골드", inline=True)
+        embed.add_field(name="10% 할인 쿠폰", value=discount_per.get("premium").get("10") + " 골드", inline=True)
+        embed.add_field(name="20% 할인 쿠폰", value=discount_per.get("premium").get("20") + " 골드", inline=True)
+        embed.add_field(name="30% 할인 쿠폰", value=discount_per.get("premium").get("30") + " 골드", inline=True)
+        embed.add_field(name="50% 할인 쿠폰", value=discount_per.get("premium").get("50") + " 골드", inline=True)
+        embed.add_field(name="100% 할인 쿠폰", value=discount_per.get("premium").get("100") + " 골드", inline=True)
+        embed.add_field(name = chr(173), value = "")
+        
+        embed.add_field(name = "프리미엄 플러스 팩 미사용", value = "", inline=False)
+        embed.add_field(name="쿠폰 미사용", value=discount_per.get("basic").get("no_coupon") + " 골드", inline=True)
+        embed.add_field(name="10% 할인 쿠폰", value=discount_per.get("basic").get("10") + " 골드", inline=True)
+        embed.add_field(name="20% 할인 쿠폰", value=discount_per.get("basic").get("20") + " 골드", inline=True)
+        embed.add_field(name="30% 할인 쿠폰", value=discount_per.get("basic").get("30") + " 골드", inline=True)
+        embed.add_field(name="50% 할인 쿠폰", value=discount_per.get("basic").get("50") + " 골드", inline=True)
+        embed.add_field(name="100% 할인 쿠폰", value=discount_per.get("basic").get("100") + " 골드", inline=True)
         embed.add_field(name = chr(173), value = "")
         
         embed.set_footer(text="Data based on NEXON Open API")
         
         await message.channel.send(file=file, embed=embed, reference=message.reference, mention_author=False)
-    
+
+    # 지정 색상 염색 앰플 가격 검색
 
 
     # 이터리 전적 검색

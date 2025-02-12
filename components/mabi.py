@@ -49,8 +49,11 @@ def getItemPrice(itemName):
 # 마비노기 아이템 수수료 계산기
 def getItemCharge(price):
 
+    price = price.replace(",", "")
+
     # 프플팩 기준으로 출력
-    price = math.ceil(float(price) * 0.04)
+    p_charge = math.ceil(float(price) * 0.04)
+    b_charge = math.ceil(float(price) * 0.05)
 
     # 할인권 5개 가격 출력
 
@@ -93,12 +96,22 @@ def getItemCharge(price):
     )
 
     discount_per = {
-        "no_coupon" : f"{price:,}",
-        "10" : f"{int((float(price)*0.1) - min_price_10):,}",
-        "20" : f"{int((float(price)*0.2) - min_price_20):,}",
-        "30" : f"{int((float(price)*0.3) - min_price_30):,}",
-        "50" : f"{int((float(price)*0.5) - min_price_50):,}",
-        "100" : f"{price - min_price_100:,}"
+        "premium" : {
+            "no_coupon" : f"{int(price) - p_charge:,}",
+            "10" : f"{int((float(p_charge)*0.1) - min_price_10):,}",
+            "20" : f"{int((float(p_charge)*0.2) - min_price_20):,}",
+            "30" : f"{int((float(p_charge)*0.3) - min_price_30):,}",
+            "50" : f"{int((float(p_charge)*0.5) - min_price_50):,}",
+            "100" : f"{int(price) - min_price_100:,}"
+        },
+        "basic" : {
+            "no_coupon" : f"{int(price) - b_charge:,}",
+            "10" : f"{int((float(b_charge)*0.1) - min_price_10):,}",
+            "20" : f"{int((float(b_charge)*0.2) - min_price_20):,}",
+            "30" : f"{int((float(b_charge)*0.3) - min_price_30):,}",
+            "50" : f"{int((float(b_charge)*0.5) - min_price_50):,}",
+            "100" : f"{int(price) - min_price_100:,}"
+        }
     }
 
     # 제일 이득인 쿠폰
