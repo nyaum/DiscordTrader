@@ -71,7 +71,7 @@ async def on_message(message: discord.Message):
 
     # 도움말
     if message.content == "!help":
-        await message.channel.send("```!help : 도움말\n!mt <아이템 이름> : 경매장 아이템 검색```")
+        await message.channel.send("```!help : 도움말\n!mt <아이템 이름> : 경매장 아이템 검색\n!coupon <아이템 이름> : 경매장 수수료 계산기```")
 
     # 아이템 가격 검색 (마비노기 : !mt <아이템 이름>)
     if message.content.startswith("!mt"):
